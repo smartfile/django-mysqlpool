@@ -28,16 +28,16 @@ Configure this backend instead of the default Django mysql backend.
 
 ::
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django_mysqlpool.backends.mysqlpool',
-        'NAME': 'db_name',
-        'USER': 'username',
-        'PASSWORD': 'password',
-        'HOST': '',
-        'PORT': '',
-    },
-}
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django_mysqlpool.backends.mysqlpool',
+            'NAME': 'db_name',
+            'USER': 'username',
+            'PASSWORD': 'password',
+            'HOST': '',
+            'PORT': '',
+        },
+    }
 
 Configuration
 -------------
@@ -46,12 +46,12 @@ There are a number of additional options that can be configured in settings.py:
 
  * MYSQLPOOL_MAX - The number of connections allowed in the pool.
  * MYSQLPOOL_OVERFLOW - The number of connections beyond max that can be used
-temporarily (burst).
+   temporarily (burst).
  * MYSQLPOOL_RECYCLE - The time (in seconds) before a connection is reaped.
-This value should be less than the configured timeout value in MySQL. Mysql's
-default is 120s, so the default recycle interval is 119s.
+   This value should be less than the configured timeout value in MySQL. Mysql's
+   default is 120s, so the default recycle interval is 119s.
  * MYSQLPOOL_TIMEOUT - The amount of time to wait for a new connection to
-complete before aborting.
+   complete before aborting.
 
 .. _SmartFile: http://www.smartfile.com/
 .. _Read more: http://www.smartfile.com/open-source.html
