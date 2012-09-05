@@ -24,7 +24,7 @@ setup(
     url = 'http://github.com/smartfile/' + name + '/',
     download_url = download_url,
     license = 'MIT',
-    requires = [
+    install_requires = [
         'SQLAlchemy',
     ],
     packages = [
