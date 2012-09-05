@@ -21,7 +21,7 @@ setup(
     author_email = 'btimby@gmail.com',
     maintainer = 'Ben Timby',
     maintainer_email = 'btimby@gmail.com',
-    url = 'http://github.com/btimby/django-mysqlpool/',
+    url = 'http://github.com/smartfile/' + name + '/',
     download_url = download_url,
     license = 'MIT',
     requires = [
