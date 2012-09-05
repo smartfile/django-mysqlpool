@@ -1,9 +1,5 @@
 from django.conf import settings
 from django.db.backends.mysql import base
-from django.db.backends.mysql.client import DatabaseClient
-from django.db.backends.mysql.creation import DatabaseCreation
-from django.db.backends.mysql.introspection import DatabaseIntrospection
-from django.db.backends.mysql.validation import DatabaseValidation
 from django.core.exceptions import ImproperlyConfigured
 
 try:
@@ -29,7 +25,7 @@ def copy_if_defined(source, skey, dest, dkey, default=None):
 class PooledDatabase(object):
     def __init__(self):
         kwargs = {}
-        copy_if_defined(settings, 'MYSQLPOOL_RECYCLE', kwargs, 'recycle', RECYCLE_DEFAULT)
+        copy_if_defined(settings, 'MYSQLPOOL_RECYCLE', kwargs, 'recycle', MYSQLPOOL_RECYCLE)
         copy_if_defined(settings, 'MYSQLPOOL_MAX', kwargs, 'pool_size')
         copy_if_defined(settings, 'MYSQLPOOL_OVERFLOW', kwargs, 'max_overflow')
         copy_if_defined(settings, 'MYSQLPOOL_TIMEOUT', kwargs, 'timeout')
