@@ -3,12 +3,12 @@
 import os
 from distutils.core import setup
 
-name = 'django_mysqlpool'
+name = 'django-mysqlpool'
 version = '0.1'
-release = '1'
+release = '2'
 versrel = version + '-' + release
 readme = os.path.join(os.path.dirname(__file__), 'README.rst')
-download_url = 'https://github.com/downloads/btimby/django-mysqlpool' \
+download_url = 'https://github.com/downloads/smartfile/django-mysqlpool' \
                '/' + name + '-' + versrel + '.tar.gz'
 long_description = file(readme).read()
 
