@@ -1,7 +1,6 @@
 from UserDict import UserDict
 from django.conf import settings
 from django.db.backends.mysql import base
-from django.utils.importlib import import_module
 from django.core.exceptions import ImproperlyConfigured
 
 try:
