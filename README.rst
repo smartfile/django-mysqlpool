@@ -42,16 +42,22 @@ Configure this backend instead of the default Django mysql backend.
 Configuration
 -------------
 
-There are a number of additional options that can be configured in settings.py:
+You can define the pool implementation and the specific arguments passed to it.
+The available implementations (backends) and their arguments are defined within
+the SQLAlchemy documentation.
 
- * MYSQLPOOL_MAX - The number of connections allowed in the pool.
- * MYSQLPOOL_OVERFLOW - The number of connections beyond max that can be used
-   temporarily (burst).
- * MYSQLPOOL_RECYCLE - The time (in seconds) before a connection is reaped.
-   This value should be less than the configured timeout value in MySQL. Mysql's
-   default is 120s, so the default recycle interval is 119s.
- * MYSQLPOOL_TIMEOUT - The amount of time to wait for a new connection to
-   complete before aborting.
+http://docs.sqlalchemy.org/en/rel_0_7/core/pooling.html
+
+ * MYSQLPOOL_BACKEND - The pool implementation name ('QueuePool' by default).
+ * MYSQLPOOL_ARGUMENTS - The kwargs passed to the pool.
+
+For example, to use a QueuePool without threadlocal, you could use the following
+configuration::
+
+    MYSQLPOOL_BACKEND = 'QueuePool'
+    MYSQLPOOL_ARGUMENTS = {
+        'use_threadlocal': False,
+    }
 
 .. _SmartFile: http://www.smartfile.com/
 .. _Read more: http://www.smartfile.com/open-source.html

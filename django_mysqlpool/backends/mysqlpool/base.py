@@ -1,6 +1,7 @@
 from UserDict import UserDict
 from django.conf import settings
 from django.db.backends.mysql import base
+from django.utils.importlib import import_module
 from django.core.exceptions import ImproperlyConfigured
 
 try:
@@ -9,17 +10,10 @@ except ImportError, e:
     raise ImproperlyConfigured("Error loading SQLAlchemy module: %s" % e)
 
 
+# Global variable to hold the actual connection pool.
 MYSQLPOOL = None
-MYSQLPOOL_RECYCLE = 119
-
-def copy_if_defined(source, skey, dest, dkey, default=None):
-    """Transfers attributes from source.skey to dest[dkey]. Can assign a default
-    value if source.skey is not defined."""
-    try:
-        dest[dkey] = getattr(source, skey)
-    except AttributeError:
-        if default is not None:
-            dest[dkey] = default
+# Default pool type (QueuePool, SingletonThreadPool, AssertionPool, NullPool, StaticPool).
+MYSQLPOOL_BACKEND = 'QueuePool'
 
 
 def isiterable(value):
@@ -62,11 +56,10 @@ def get_pool():
     "Creates one and only one pool using the configured settings."
     global MYSQLPOOL
     if MYSQLPOOL is None:
-        kwargs = {}
-        copy_if_defined(settings, 'MYSQLPOOL_RECYCLE', kwargs, 'recycle', MYSQLPOOL_RECYCLE)
-        copy_if_defined(settings, 'MYSQLPOOL_MAX', kwargs, 'pool_size')
-        copy_if_defined(settings, 'MYSQLPOOL_OVERFLOW', kwargs, 'max_overflow')
-        copy_if_defined(settings, 'MYSQLPOOL_TIMEOUT', kwargs, 'timeout')
+        backend = getattr(settings, 'MYSQLPOOL_BACKEND', MYSQLPOOL_BACKEND)
+        backend = getattr(pool, backend)
+        kwargs = getattr(settings, 'MYSQLPOOL_ARGUMENTS', {})
+        kwargs.setdefault('poolclass', backend)
         MYSQLPOOL = pool.manage(OldDatabase, **kwargs)
     return MYSQLPOOL
 
