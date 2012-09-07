@@ -15,7 +15,12 @@ http://menendez.com/blog/mysql-connection-pooling-django-and-sqlalchemy/
 The main differences being:
 
 1. The work is done for you.
-2. Instead of cloning the Django mysql backend, we import it.
+2. Instead of cloning the Django mysql backend, we monkey-patch it.
+
+The second point sounds bad, but it is the best option because it does not
+freeze the Django MySQL backend at a specific revision. Using this method
+allows us to benefit from any bugs that the Django project fixes, while
+layering on connection pooling.
 
 The actual pooling is done using SQLAlchemy. While imperfect (this backend
 is per-process only) it has usefulness. The main problem it solves for us
@@ -66,23 +71,24 @@ While this has nothing to do directly with connection pooling, it is tangentiall
 related. Once you start pooling (and limiting) the database connections it
 becomes important to close them.
 
-This project was originally created because our FTP server (written in Python
-and using Django for database interaction) was exhausting all of our database
-connections. The idea was that pooling would be more efficient, and also
-enforce a connection limit for each FTP process.
+This is really only relevant when you are dealing with a threaded application. Such
+was the case for one of our servers. It would create many threads for handling
+conncurrent operations. Each thread resulted in a connection to the database being
+opened persistently. Once we deployed connection pooling, this service quickly
+exhausted the connection limit of it's pool.
 
-Once deployed, we quickly exhausted the per-process limit. This was actually a
-big success for us, as it mean the FTP server stopped functioning, without impacting
-any other database clients. Investigating, we found that Django only closes database
-connections when it is done handling a request. Since our FTP server did not follow
-the normal request processing pipeline, we needed to close our connections proactively
-(thus returning them to the pool as soon as possible). Below is a very good
-description of the problem we faced.
+This sounds like a huge failure, but for us it was a great success. The reason is
+that we implemented pooling specifically to limit each process to a certain
+number of connections. This prevents any given process from impacting other
+services, turning a global issue into a local issue. Once we were able to identify
+the specific service that was abusing our MySQL server, we were able to fix it.
+
+The problem we were having with this threaded server is very well described below.
 
 http://stackoverflow.com/questions/1303654/threaded-django-task-doesnt-automatically-handle-transactions-or-db-connections
 
-A decorator was created for wrapping any function that used the Django ORM,
-automatically closing the connection. You can use it as follows::
+Therefore, this library provides a decorator that can be used in a similar situation
+to help with connection management. You can use it like so::
 
     from django_mysqlpool import auto_close_db
 
@@ -90,9 +96,12 @@ automatically closing the connection. You can use it as follows::
     def function_that_uses_db():
         MyModel.objects.all().delete()
 
-With pooling, closing the connection early and often is the key to good performance.
-Closing returns the connection to the pool to be reused, thus the total number of
-connections is decreased.
+With pooling (and threads), closing the connection early and often is the key to good
+performance. Closing returns the connection to the pool to be reused, thus the total
+number of connections is decreased. We also needed to disable the `use_threadlocal`
+option of the QueuePool, so that multiple threads could share the same connection.
+Once we decorated all functions that utilized a connection, this service used less
+connections than it's total thread count.
 
 .. _SmartFile: http://www.smartfile.com/
 .. _Read more: http://www.smartfile.com/open-source.html
