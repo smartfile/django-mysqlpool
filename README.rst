@@ -59,5 +59,40 @@ configuration::
         'use_threadlocal': False,
     }
 
+Connection Closing
+------------------
+
+While this has nothing to do directly with connection pooling, it is tangentially
+related. Once you start pooling (and limiting) the database connections it
+becomes important to close them.
+
+This project was originally created because our FTP server (written in Python
+and using Django for database interaction) was exhausting all of our database
+connections. The idea was that pooling would be more efficient, and also
+enforce a connection limit for each FTP process.
+
+Once deployed, we quickly exhausted the per-process limit. This was actually a
+big success for us, as it mean the FTP server stopped functioning, without impacting
+any other database clients. Investigating, we found that Django only closes database
+connections when it is done handling a request. Since our FTP server did not follow
+the normal request processing pipeline, we needed to close our connections proactively
+(thus returning them to the pool as soon as possible). Below is a very good
+description of the problem we faced.
+
+http://stackoverflow.com/questions/1303654/threaded-django-task-doesnt-automatically-handle-transactions-or-db-connections
+
+A decorator was created for wrapping any function that used the Django ORM,
+automatically closing the connection. You can use it as follows::
+
+    from django_mysqlpool import auto_close_db
+
+    @auto_close_db
+    def function_that_uses_db():
+        MyModel.objects.all().delete()
+
+With pooling, closing the connection early and often is the key to good performance.
+Closing returns the connection to the pool to be reused, thus the total number of
+connections is decreased.
+
 .. _SmartFile: http://www.smartfile.com/
 .. _Read more: http://www.smartfile.com/open-source.html
