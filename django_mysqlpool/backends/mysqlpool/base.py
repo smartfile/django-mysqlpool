@@ -17,6 +17,7 @@ MYSQLPOOL_BACKEND = 'QueuePool'
 # so default to 119.
 MYSQLPOOL_TIMEOUT = 119
 
+
 def isiterable(value):
     "Checks if the provided value is iterable."
     try:
