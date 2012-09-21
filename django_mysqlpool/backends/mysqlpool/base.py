@@ -13,7 +13,9 @@ except ImportError, e:
 MYSQLPOOL = None
 # Default pool type (QueuePool, SingletonThreadPool, AssertionPool, NullPool, StaticPool).
 MYSQLPOOL_BACKEND = 'QueuePool'
-
+# Needs to be less than MySQL connection timeout (server setting). The default is 120,
+# so default to 119.
+MYSQLPOOL_TIMEOUT = 119
 
 def isiterable(value):
     "Checks if the provided value is iterable."
@@ -59,6 +61,8 @@ def get_pool():
         backend = getattr(pool, backend)
         kwargs = getattr(settings, 'MYSQLPOOL_ARGUMENTS', {})
         kwargs.setdefault('poolclass', backend)
+        # The user can override this, but set it by default for safety.
+        kwargs.setdefault('recycle', MYSQLPOOL_TIMEOUT)
         MYSQLPOOL = pool.manage(OldDatabase, **kwargs)
     return MYSQLPOOL
 
