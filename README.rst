@@ -103,5 +103,24 @@ option of the QueuePool, so that multiple threads could share the same connectio
 Once we decorated all functions that utilized a connection, this service used less
 connections than it's total thread count.
 
+Forking
+-------
+
+If you are using mysqlpool with a daemon (our project uses Django admin commands to
+build daemons) then you need to take care with the connection pool. After a fork()
+the pool will be unusable. In our case, the file descriptors for the connections
+were closed, and in the child, any new connections or files assumed the fd of the
+MySQL connection this caused the Django ORM to read/write on some non-MySQL
+connection in our case, Redis, so Django would send SQL to redis an expect a
+reply! The solution is to close the pool before fork()ing. This will release the
+pooled connections which will be reopened when the child first attempts to use
+them.
+
+    from django_mysqlpool import close_pool
+
+    close_pool()
+    pid = os.fork()
+
+
 .. _SmartFile: http://www.smartfile.com/
 .. _Read more: http://www.smartfile.com/open-source.html
