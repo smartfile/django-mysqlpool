@@ -5,11 +5,9 @@ from distutils.core import setup
 
 name = 'django-mysqlpool'
 version = '0.1'
-release = '6'
+release = '8'
 versrel = version + '-' + release
 readme = os.path.join(os.path.dirname(__file__), 'README.rst')
-download_url = 'https://github.com/downloads/smartfile/django-mysqlpool' \
-               '/' + name + '-' + versrel + '.tar.gz'
 long_description = file(readme).read()
 
 setup(
@@ -22,7 +20,6 @@ setup(
     maintainer = 'Ben Timby',
     maintainer_email = 'btimby@gmail.com',
     url = 'http://github.com/smartfile/' + name + '/',
-    download_url = download_url,
     license = 'MIT',
     install_requires = [
         'SQLAlchemy',
