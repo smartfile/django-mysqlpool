@@ -68,6 +68,10 @@ def get_pool():
     return MYSQLPOOL
 
 
+def close_pool():
+    pool.clear_managers()
+
+
 def connect(**kwargs):
     "Obtains a database connection from the connection pool."
     conv = kwargs.pop('conv', None)
