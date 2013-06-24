@@ -1,3 +1,5 @@
+import os
+
 from UserDict import UserDict
 from django.conf import settings
 from django.db.backends.mysql import base
@@ -65,11 +67,10 @@ def get_pool():
         # The user can override this, but set it by default for safety.
         kwargs.setdefault('recycle', MYSQLPOOL_TIMEOUT)
         MYSQLPOOL = pool.manage(OldDatabase, **kwargs)
+        setattr(MYSQLPOOL, '_pid', os.getpid())
+    if getattr(MYSQLPOOL, '_pid', None) != os.getpid():
+        pool.clear_managers()
     return MYSQLPOOL
-
-
-def close_pool():
-    pool.clear_managers()
 
 
 def connect(**kwargs):
