@@ -1,39 +1,97 @@
 #!/bin/env python
+# -*- coding: utf-8 -*-
+"""The setup script for ``django_mysqlpool``."""
+# These imports make 2 act like 3, making it easier on us to switch to PyPy or
+# some other VM if we need to for performance reasons.
+from __future__ import (absolute_import, print_function, unicode_literals,
+                        division)
 
-import os
-from distutils.core import setup
+# Make ``Foo()`` work the same in Python 2 as it does in Python 3.
+__metaclass__ = type
 
-name = 'django-mysqlpool'
-version = '0.1'
-release = '9'
-versrel = version + '-' + release
-readme = os.path.join(os.path.dirname(__file__), 'README.rst')
-long_description = file(readme).read()
+
+import re
+import sys
+from setuptools import setup, find_packages
+from setuptools.command.test import test as TestCommand
+
+
+REQUIRES = [
+    "sqlalchemy >=0.7, <1.0",
+]
+
+
+class PyTest(TestCommand):
+
+    """The ``setuptools`` command for testing our application."""
+
+    def finalize_options(self):
+        """Set up the options for the tests."""
+        TestCommand.finalize_options(self)
+        self.test_args = []
+        self.test_suite = True
+
+    def run_tests(self):
+        """Execute the tests and report the results."""
+        import pytest
+        errcode = pytest.main(self.test_args)
+        sys.exit(errcode)
+
+
+def find_version(fname):
+    """Attempt to find the version number in the file names fname.
+
+    Raises ``RuntimeError`` if not found.
+    """
+    version = ""
+    with open(fname, "r") as fp:
+        reg = re.compile(r'__version__ = [\'"]([^\'"]*)[\'"]')
+        for line in fp:
+            m = reg.match(line)
+            if m:
+                version = m.group(1)
+                break
+    if not version:
+        raise RuntimeError("Cannot find version information")
+    return version
+
+__version__ = find_version("django_mysqlpool/__init__.py")
+
+
+def read(fname):
+    """Return the contents of the file-like ``fname``."""
+    with open(fname) as fp:
+        content = fp.read()
+    return content
 
 setup(
-    name = name,
-    version = versrel,
-    description = 'Django database backend for MySQL that provides pooling ala SQLAlchemy.',
-    long_description = long_description,
-    author = 'Ben Timby',
-    author_email = 'btimby@gmail.com',
-    maintainer = 'Ben Timby',
-    maintainer_email = 'btimby@gmail.com',
-    url = 'http://github.com/smartfile/' + name + '/',
-    license = 'MIT',
-    install_requires = [
-        'SQLAlchemy',
+    name="django-mysqlpool",
+    version=__version__,
+    description="Django database backend for MySQL that provides pooling ala SQLAlchemy.",  # noqa
+    long_description=read("README.rst"),
+    author=["Ben Timby", "Hank Gay"],
+    author_email=["btimby@gmail.com", "hank@rescuetime.com"],
+    maintainer=["Ben Timby", "Hank Gay"],
+    maintainer_email=["btimby@gmail.com", "hank@rescuetime.com"],
+    url="https://github.com/gthank/django-mysqlpool",
+    install_requires=REQUIRES,
+    license=read("LICENSE"),
+    zip_safe=False,
+    classifiers=[
+        "License :: OSI Approved :: MIT License",
+        "Development Status :: 4 - Beta",
+        "Intended Audience :: Developers",
+        "Operating System :: OS Independent",
+        "Programming Language :: Python",
+        "Topic :: Software Development :: Libraries :: Python Modules",
+        "Programming Language :: Python :: 2",
+        "Programming Language :: Python :: 2.7",
+        "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 3.4",
+        "Programming Language :: Python :: Implementation :: CPython",
+        "Programming Language :: Python :: Implementation :: PyPy"
     ],
-    packages = [
-        "django_mysqlpool",
-        "django_mysqlpool.backends",
-        "django_mysqlpool.backends.mysqlpool",
-    ],
-    classifiers = (
-          'Development Status :: 4 - Beta',
-          'Intended Audience :: Developers',
-          'Operating System :: OS Independent',
-          'Programming Language :: Python',
-          'Topic :: Software Development :: Libraries :: Python Modules',
-    ),
+    packages=find_packages(),
+    tests_require=["pytest"],
+    cmdclass={"test": PyTest}
 )
