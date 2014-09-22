@@ -11,31 +11,12 @@ __metaclass__ = type
 
 
 import re
-import sys
 from setuptools import setup, find_packages
-from setuptools.command.test import test as TestCommand
 
 
 REQUIRES = [
     "sqlalchemy >=0.7, <1.0",
 ]
-
-
-class PyTest(TestCommand):
-
-    """The ``setuptools`` command for testing our application."""
-
-    def finalize_options(self):
-        """Set up the options for the tests."""
-        TestCommand.finalize_options(self)
-        self.test_args = []
-        self.test_suite = True
-
-    def run_tests(self):
-        """Execute the tests and report the results."""
-        import pytest
-        errcode = pytest.main(self.test_args)
-        sys.exit(errcode)
 
 
 def find_version(fname):
@@ -54,6 +35,7 @@ def find_version(fname):
     if not version:
         raise RuntimeError("Cannot find version information")
     return version
+
 
 __version__ = find_version("django_mysqlpool/__init__.py")
 
@@ -92,6 +74,4 @@ setup(
         "Programming Language :: Python :: Implementation :: PyPy"
     ],
     packages=find_packages(),
-    tests_require=["pytest"],
-    cmdclass={"test": PyTest}
 )
