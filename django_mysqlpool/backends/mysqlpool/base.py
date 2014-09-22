@@ -18,7 +18,7 @@ from django.core.exceptions import ImproperlyConfigured
 
 try:
     import sqlalchemy.pool as pool
-except ImportError, e:
+except ImportError as e:
     raise ImproperlyConfigured("Error loading SQLAlchemy module: %s" % e)
 
 
