@@ -72,8 +72,7 @@ class HashableDict(dict):
         The hash is determined by converting to a sorted tuple of key-value
         pairs and hashing that.
         """
-        items = sorted(self.items())
-        items = [(n, tuple(v)) for n, v in items if isiterable(v)]
+        items = [(n, tuple(v)) for n, v in self.items if isiterable(v)]
         return hash(tuple(items))
 
 
