@@ -12,7 +12,7 @@ __metaclass__ = type
 from functools import wraps
 
 
-__version__ = "0.2.0"
+__version__ = "0.2.1"
 
 
 def auto_close_db(f):
