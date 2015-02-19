@@ -16,13 +16,13 @@ __version__ = "0.2.1"
 
 
 def auto_close_db(f):
-    """Ensure the database connection is closed when the function returns."""
-    from django.db import connection
-
+    "Ensures the database connection is closed when the function returns."
+    from django.db import connections
     @wraps(f)
     def wrapper(*args, **kwargs):
         try:
             return f(*args, **kwargs)
         finally:
-            connection.close()
+            for connection in connections.all():
+                connection.close()
     return wrapper
