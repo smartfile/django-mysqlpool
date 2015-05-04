@@ -103,12 +103,17 @@ def get_pool():
 
 def connect(**kwargs):
     """Obtain a database connection from the connection pool."""
+    # SQLAlchemy serializes the parameters to keep unique connection
+    # parameter groups in their own pool. We need to store certain
+    # values in a manner that is compatible with their serialization.
     conv = kwargs.pop('conv', None)
+    ssl = kwargs.pop('ssl', None)
     if conv:
-        # SQLAlchemy serializes the parameters to keep unique connection
-        # parameter groups in their own pool. We need to store conv in a manner
-        # that is compatible with their serialization.
         kwargs['conv'] = HashableDict(conv)
+
+    if ssl:
+        kwargs['ssl'] = HashableDict(ssl)
+
     # Open the connection via the pool.
     return get_pool().connect(**kwargs)
 
